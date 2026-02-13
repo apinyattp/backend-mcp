@@ -1,0 +1,62 @@
+services:
+  mcp-knowledge-base:
+    build:
+      context: ./
+      dockerfile: Dockerfile.debug
+    ports:
+      - "3000:3000"
+    environment:
+      PORT: "3000"
+      QDRANT_URL: "http://qdrant:6333"
+      TRANSFORMERS_CACHE: "/tmp/transformers-cache"
+      JWT_SECRET: "your-secret-key-change-in-production"
+      JWT_EXPIRES_IN: "24h"
+      DB_HOST: "postgres"
+      DB_PORT: "5432"
+      DB_USERNAME: "postgres"
+      DB_PASSWORD: "secret"
+      DB_DATABASE: "knowledgehub"
+      GOOGLE_CLIENT_ID: "1052720738582-4f8huhv1ftd96phobs96tfq6rk8p312a.apps.googleusercontent.com"
+      EMBEDDING_PROVIDER: "local"
+    volumes:
+      - ./:/app
+      - /app/node_modules/
+    command: npm run dev
+    depends_on:
+      - qdrant
+      - postgres
+    networks:
+      - default
+      - expose_network
+
+  qdrant:
+    image: qdrant/qdrant:v1.16.2
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - qdrant_data:/qdrant/storage
+    networks:
+      - default
+
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: knowledgehub
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: secret
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - default
+
+volumes:
+  qdrant_data:
+  pgdata:
+
+networks:
+  expose_network:
+    name: expose_network
+    external: true
