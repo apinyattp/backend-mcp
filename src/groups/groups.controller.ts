@@ -11,7 +11,6 @@ import {
   UseGuards,
   HttpCode,
   HttpStatus,
-  NotFoundException,
 } from "@nestjs/common";
 import { GroupsService } from "./groups.service";
 import { RolesGuard } from "../common/guards/roles.guard";
@@ -47,7 +46,7 @@ export class GroupsController {
         id: gm.group.id,
         name: gm.group.name,
         emoji: gm.group.emoji,
-        role: gm.role,
+        role: gm.user.role,
       })),
     };
   }
@@ -100,11 +99,7 @@ export class GroupsController {
     @Param("groupId") groupId: string,
     @Body() dto: AssignMemberDto,
   ) {
-    const member = await this.groupsService.addMember(
-      groupId,
-      dto.email,
-      dto.role,
-    );
+    const member = await this.groupsService.addMember(groupId, dto.email);
     return {
       id: member.id,
       userId: member.userId,
@@ -134,7 +129,7 @@ export class GroupsController {
       userId: member.userId,
       name: member.user.name,
       email: member.user.email,
-      role: member.role,
+      role: member.user.role,
     };
   }
 

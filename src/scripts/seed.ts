@@ -8,7 +8,6 @@ import { User } from "../users/entities/user.entity";
 import { Group } from "../groups/entities/group.entity";
 import { GroupMember } from "../groups/entities/group-member.entity";
 import { Role } from "../common/enums/role.enum";
-import { GroupRole } from "../common/enums/role.enum";
 import { knowledgeBase } from "../knowledge/knowledge-base";
 import { KB_COLLECTION, KB_VECTOR_SIZE } from "../qdrant/qdrant.config";
 
@@ -95,28 +94,24 @@ async function seed() {
   console.log("Seeding group memberships...");
 
   const memberships = [
-    // Admin is admin of both groups
+    // Admin is member of both groups
     memberRepo.create({
       userId: savedAdmin.id,
       groupId: savedEngineering.id,
-      role: GroupRole.ADMIN,
     }),
     memberRepo.create({
       userId: savedAdmin.id,
       groupId: savedSupport.id,
-      role: GroupRole.ADMIN,
     }),
     // User 1 is member of Engineering
     memberRepo.create({
       userId: savedUser1.id,
       groupId: savedEngineering.id,
-      role: GroupRole.USER,
     }),
     // User 2 is member of Support
     memberRepo.create({
       userId: savedUser2.id,
       groupId: savedSupport.id,
-      role: GroupRole.USER,
     }),
   ];
 

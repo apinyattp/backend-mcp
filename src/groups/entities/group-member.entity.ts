@@ -7,7 +7,6 @@ import {
   JoinColumn,
   Unique,
 } from "typeorm";
-import { GroupRole } from "../../common/enums/role.enum";
 import { User } from "../../users/entities/user.entity";
 import { Group } from "./group.entity";
 
@@ -23,13 +22,10 @@ export class GroupMember {
   @Column({ type: "uuid", name: "group_id" })
   groupId: string;
 
-  @Column({ type: "enum", enum: GroupRole, default: GroupRole.USER })
-  role: GroupRole;
-
   @CreateDateColumn({ name: "joined_at" })
   joinedAt: Date;
 
-  @ManyToOne(() => User, { onDelete: "CASCADE" })
+  @ManyToOne(() => User, { onDelete: "CASCADE", eager: false })
   @JoinColumn({ name: "user_id" })
   user: User;
 

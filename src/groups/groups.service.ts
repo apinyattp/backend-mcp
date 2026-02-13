@@ -9,7 +9,7 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { Group } from "./entities/group.entity";
 import { GroupMember } from "./entities/group-member.entity";
-import { GroupRole } from "../common/enums/role.enum";
+import { Role } from "../common/enums/role.enum";
 import { PaginationDto } from "../common/dto/pagination.dto";
 import { PaginatedResponse } from "../common/dto/paginated-response.dto";
 import { UsersService } from "../users/users.service";
@@ -101,7 +101,7 @@ export class GroupsService {
   async findByUser(userId: string): Promise<GroupMember[]> {
     return this.groupMembersRepository.find({
       where: { userId },
-      relations: ["group"],
+      relations: ["group", "user"],
     });
   }
 
@@ -115,11 +115,7 @@ export class GroupsService {
     });
   }
 
-  async addMember(
-    groupId: string,
-    email: string,
-    role: GroupRole = GroupRole.USER,
-  ): Promise<GroupMember> {
+  async addMember(groupId: string, email: string): Promise<GroupMember> {
     const group = await this.findById(groupId);
     if (!group) throw new NotFoundException(`Group "${groupId}" not found`);
 
@@ -135,7 +131,6 @@ export class GroupsService {
     const member = this.groupMembersRepository.create({
       userId: user.id,
       groupId,
-      role,
     });
     const saved = await this.groupMembersRepository.save(member);
 
@@ -149,7 +144,7 @@ export class GroupsService {
   async updateMemberRole(
     groupId: string,
     userId: string,
-    role: GroupRole,
+    role: Role,
   ): Promise<GroupMember> {
     const member = await this.groupMembersRepository.findOne({
       where: { groupId, userId },
@@ -157,20 +152,14 @@ export class GroupsService {
     });
     if (!member) throw new NotFoundException("Membership not found");
 
-    // Cannot demote last admin
-    if (member.role === GroupRole.ADMIN && role !== GroupRole.ADMIN) {
-      const adminCount = await this.groupMembersRepository.count({
-        where: { groupId, role: GroupRole.ADMIN },
-      });
-      if (adminCount <= 1) {
-        throw new BadRequestException(
-          "Cannot demote the last admin in this group.",
-        );
-      }
-    }
+    // Update the user's app-level role
+    await this.usersService.updateRole(userId, role);
 
-    member.role = role;
-    return this.groupMembersRepository.save(member);
+    // Re-fetch with updated user
+    return this.groupMembersRepository.findOne({
+      where: { groupId, userId },
+      relations: ["user"],
+    }) as Promise<GroupMember>;
   }
 
   async removeMember(groupId: string, userId: string): Promise<void> {
@@ -178,16 +167,6 @@ export class GroupsService {
       where: { groupId, userId },
     });
     if (!member) throw new NotFoundException("Membership not found");
-
-    // Cannot remove last admin
-    if (member.role === GroupRole.ADMIN) {
-      const adminCount = await this.groupMembersRepository.count({
-        where: { groupId, role: GroupRole.ADMIN },
-      });
-      if (adminCount <= 1) {
-        throw new BadRequestException("Assign another admin first.");
-      }
-    }
 
     await this.groupMembersRepository.remove(member);
   }

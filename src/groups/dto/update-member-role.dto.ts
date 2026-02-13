@@ -1,8 +1,8 @@
 import { IsEnum, IsNotEmpty } from "class-validator";
-import { GroupRole } from "../../common/enums/role.enum";
+import { Role } from "../../common/enums/role.enum";
 
 export class UpdateMemberRoleDto {
-  @IsEnum(GroupRole)
+  @IsEnum(Role)
   @IsNotEmpty()
-  role: GroupRole;
+  role: Role;
 }
