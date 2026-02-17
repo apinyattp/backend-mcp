@@ -4,6 +4,8 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 import { registerTools, type ToolContext } from "./knowledge/tools/index";
 import { KnowledgeBasesService } from "./knowledge-bases/knowledge-bases.service";
+import { McpOAuthService } from "./mcp-auth/mcp-oauth.service";
+import { Public } from "./common/decorators/public.decorator";
 
 async function createServer(
   allowedTools: string[],
@@ -19,18 +21,48 @@ async function createServer(
   return server;
 }
 
+@Public()
 @Controller("mcp")
 export class McpController {
   constructor(
     @Inject(KnowledgeBasesService)
     private knowledgeBasesService: KnowledgeBasesService,
+    @Inject(McpOAuthService)
+    private mcpOAuthService: McpOAuthService,
   ) {}
+
+  private getBaseUrl(req: Request): string {
+    const proto =
+      (req.headers["x-forwarded-proto"] as string) || req.protocol;
+    const host =
+      (req.headers["x-forwarded-host"] as string) || req.get("host");
+    return `${proto}://${host}`;
+  }
 
   @Post()
   async handleMcpRequest(@Req() req: Request, @Res() res: Response) {
+    // Validate OAuth Bearer token
+    const authHeader = req.headers.authorization;
+    const token = authHeader?.replace(/^Bearer\s+/i, "").trim();
+
+    if (!token || !this.mcpOAuthService.validateAccessToken(token)) {
+      const baseUrl = this.getBaseUrl(req);
+      res
+        .status(401)
+        .setHeader(
+          "WWW-Authenticate",
+          `Bearer resource_metadata="${baseUrl}/.well-known/oauth-protected-resource"`,
+        )
+        .json({
+          jsonrpc: "2.0",
+          error: { code: -32001, message: "Unauthorized" },
+          id: null,
+        });
+      return;
+    }
+
     try {
-      const apiKey = (req as any).apiKey;
-      const tools: string[] = apiKey?.tools || [
+      const tools: string[] = [
         "search_knowledge",
         "get_topic",
         "list_topics",

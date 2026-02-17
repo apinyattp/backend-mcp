@@ -43,7 +43,7 @@ export class AuthController {
         id: gm.group.id,
         name: gm.group.name,
         emoji: gm.group.emoji,
-        role: gm.role,
+        role: gm.user.role,
       })),
     };
   }

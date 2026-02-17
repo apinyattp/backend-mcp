@@ -9,9 +9,16 @@ import { HttpExceptionFilter } from "./common/filters/http-exception.filter";
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  // Global prefix for API versioning (MCP endpoint excluded)
+  // Global prefix for API versioning (MCP + OAuth endpoints excluded)
   app.setGlobalPrefix("api/v1", {
-    exclude: ["mcp"],
+    exclude: [
+      "mcp",
+      ".well-known/oauth-protected-resource",
+      ".well-known/oauth-authorization-server",
+      "oauth/register",
+      "oauth/authorize",
+      "oauth/token",
+    ],
   });
 
   // Validation pipe

@@ -11,6 +11,7 @@ import { AuthModule } from "./auth/auth.module";
 import { GroupsModule } from "./groups/groups.module";
 import { KnowledgeBasesModule } from "./knowledge-bases/knowledge-bases.module";
 import { StatsModule } from "./stats/stats.module";
+import { McpAuthModule } from "./mcp-auth/mcp-auth.module";
 import { JwtAuthGuard } from "./common/guards/jwt-auth.guard";
 import { User } from "./users/entities/user.entity";
 import { Group } from "./groups/entities/group.entity";
@@ -41,6 +42,7 @@ import { GroupMember } from "./groups/entities/group-member.entity";
     AuthModule,
     KnowledgeBasesModule,
     StatsModule,
+    McpAuthModule,
   ],
   controllers: [McpController],
   providers: [
