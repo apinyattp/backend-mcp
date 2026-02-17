@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString, IsUUID, MaxLength } from "class-validator";
+import { IsNotEmpty, IsString, IsUUID, MaxLength, IsOptional, IsIn } from "class-validator";
 
 export class CreateKbDto {
   @IsString()
@@ -13,4 +13,8 @@ export class CreateKbDto {
   @IsString()
   @IsNotEmpty()
   content: string;
+
+  @IsOptional()
+  @IsIn(["text", "markdown", "json"])
+  format?: "text" | "markdown" | "json";
 }

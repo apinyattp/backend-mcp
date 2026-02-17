@@ -1,4 +1,4 @@
-import { IsOptional, IsString, IsUUID, MaxLength } from "class-validator";
+import { IsOptional, IsString, IsUUID, MaxLength, IsIn } from "class-validator";
 
 export class UpdateKbDto {
   @IsOptional()
@@ -13,4 +13,8 @@ export class UpdateKbDto {
   @IsOptional()
   @IsString()
   content?: string;
+
+  @IsOptional()
+  @IsIn(["text", "markdown", "json"])
+  format?: "text" | "markdown" | "json";
 }

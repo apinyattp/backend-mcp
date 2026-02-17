@@ -6,6 +6,7 @@ import { KB_COLLECTION, KB_VECTOR_SIZE } from "./qdrant.config";
 export interface KbPayload {
   title: string;
   content: string;
+  format: "text" | "markdown" | "json";
   owner_id: string;
   owner_name: string;
   owner_avatar_url: string | null;

@@ -21,6 +21,7 @@ function formatKbResponse(id: string, payload: KbPayload, score?: number) {
     id,
     title: payload.title,
     content: payload.content,
+    format: payload.format ?? "text",
     ...(score !== undefined ? { score } : {}),
     owner: {
       id: payload.owner_id,
@@ -71,6 +72,7 @@ export class KnowledgeBasesService {
     const payload: KbPayload = {
       title: dto.title,
       content: dto.content,
+      format: dto.format ?? "text",
       owner_id: user.id,
       owner_name: user.name,
       owner_avatar_url: user.avatarUrl,
@@ -178,6 +180,7 @@ export class KnowledgeBasesService {
 
     if (dto.title !== undefined) updated.title = dto.title;
     if (dto.content !== undefined) updated.content = dto.content;
+    if (dto.format !== undefined) updated.format = dto.format;
 
     // Handle group transfer
     if (dto.groupId && dto.groupId !== point.payload.group_id) {
