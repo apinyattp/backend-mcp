@@ -66,6 +66,8 @@ export class McpController {
         "search_knowledge",
         "get_topic",
         "list_topics",
+        "fetch_confluence_page",
+        "search_confluence",
       ];
       const context: ToolContext = {
         knowledgeBasesService: this.knowledgeBasesService,
