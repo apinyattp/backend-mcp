@@ -32,13 +32,20 @@ const definition: ToolDefinition = {
     // @ts-expect-error MCP SDK + Zod type instantiation depth
     server.tool(
       "fetch_api",
-      "Fetch data from an external API endpoint. Use this when the user asks about " +
-        "dashboard data, statistics, metrics, or any information that requires calling " +
-        "an external service.\n\n" +
-        "Authentication options (in priority order):\n" +
-        "1. bearerToken — use directly if the user already has a token\n" +
-        "2. loginUrl + username + password — auto-login first to obtain a token, then call the target API\n" +
-        "3. No auth — call the API without authentication",
+      "Call an external REST API and return the response. " +
+        "IMPORTANT: You MUST use this tool whenever the user asks about real-time data, counts, totals, " +
+        "reports, or any business data such as: number of vouchers, users, orders, transactions, revenue, " +
+        "inventory, products, tickets, or any metric that would come from an external system.\n\n" +
+        "WORKFLOW: When the user asks for such data, ask them for:\n" +
+        "1. The API endpoint URL\n" +
+        "2. Whether it needs authentication — if yes, ask for EITHER:\n" +
+        "   a. A bearer token (if they already have one), OR\n" +
+        "   b. A login URL + username + password (this tool will auto-login to get a token)\n" +
+        "Then call this tool with the provided details.\n\n" +
+        "Authentication options:\n" +
+        "- bearerToken: use directly if the user provides a token\n" +
+        "- loginUrl + username + password: auto-login via POST to get a token first\n" +
+        "- No auth: just call the API directly",
       {
         url: z
           .string()
