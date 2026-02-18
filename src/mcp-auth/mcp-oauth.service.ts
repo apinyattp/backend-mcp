@@ -6,9 +6,11 @@ import {
   type AccessToken,
 } from "./mcp-oauth.store";
 
-// Pre-registered client credentials for Claude connector
-export const DEFAULT_CLIENT_ID = "knowledgehub-mcp-client";
-export const DEFAULT_CLIENT_SECRET = "mcp-secret-change-in-production";
+// Pre-registered client credentials for Claude connector (from env)
+export const DEFAULT_CLIENT_ID =
+  process.env.MCP_OAUTH_CLIENT_ID ?? "knowledgehub-mcp-client";
+export const DEFAULT_CLIENT_SECRET =
+  process.env.MCP_OAUTH_CLIENT_SECRET ?? "mcp-secret-change-in-production";
 
 @Injectable()
 export class McpOAuthService {

@@ -18,6 +18,8 @@ services:
       DB_DATABASE: "knowledgehub"
       GOOGLE_CLIENT_ID: "1052720738582-4f8huhv1ftd96phobs96tfq6rk8p312a.apps.googleusercontent.com"
       EMBEDDING_PROVIDER: "local"
+      MCP_OAUTH_CLIENT_ID: "knowledgehub-mcp-client"
+      MCP_OAUTH_CLIENT_SECRET: "mcp-secret-change-in-production"
     volumes:
       - ./:/app
       - /app/node_modules/
