@@ -1,0 +1,3 @@
+[submodule "src/knowledge/mcp-tools"]
+	path = src/knowledge/mcp-tools
+	url = git@github.com:apinyattp/mcp-tools.git

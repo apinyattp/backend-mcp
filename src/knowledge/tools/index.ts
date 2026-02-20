@@ -1,54 +1,31 @@
-import * as fs from "fs";
 import * as path from "path";
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { type KnowledgeBasesService } from "../../knowledge-bases/knowledge-bases.service";
+import {
+  registerTools as baseRegisterTools,
+  type ToolContext as BaseToolContext,
+  type ToolDefinition,
+} from "../mcp-tools/index";
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 
-export interface ToolContext {
+// Extend the base ToolContext with project-specific services
+export interface ToolContext extends BaseToolContext {
   knowledgeBasesService: KnowledgeBasesService;
 }
 
-export interface ToolDefinition {
-  name: string;
-  register(server: McpServer, context: ToolContext): void;
-}
+export type { ToolDefinition };
 
-let allTools: ToolDefinition[] | null = null;
-
-async function loadAllTools(): Promise<ToolDefinition[]> {
-  if (allTools) return allTools;
-
-  const toolsDir = path.dirname(__filename);
-  const files = fs.readdirSync(toolsDir).filter((f) => {
-    return (
-      (f.endsWith(".ts") || f.endsWith(".js")) &&
-      f !== "index.ts" &&
-      f !== "index.js" &&
-      f !== "helpers.ts" &&
-      f !== "helpers.js"
-    );
-  });
-
-  allTools = [];
-  for (const file of files) {
-    const mod = await import(path.join(toolsDir, file));
-    const def: ToolDefinition = mod.default;
-    if (def && def.name && typeof def.register === "function") {
-      allTools.push(def);
-    }
-  }
-
-  return allTools;
-}
-
+/**
+ * Register tools from both:
+ * 1. mcp-tools submodule (shared/reusable tools)
+ * 2. This directory (custom project-specific tools)
+ *
+ * Custom tools with the same name override submodule tools.
+ */
 export async function registerTools(
   server: McpServer,
   allowedTools: string[],
   context: ToolContext,
 ): Promise<void> {
-  const tools = await loadAllTools();
-  for (const tool of tools) {
-    if (allowedTools.includes(tool.name)) {
-      tool.register(server, context);
-    }
-  }
+  const customToolsDir = path.dirname(__filename);
+  await baseRegisterTools(server, allowedTools, context, customToolsDir);
 }
